@@ -1,6 +1,7 @@
 // state
 const state = () => ({
     hasLogin: false,
+    needLogin: false,
     id: Number,
     username: String,
     password: String,
@@ -13,6 +14,9 @@ const state = () => ({
 const getters = {
     getHasLogin: (state) => {
         return state.hasLogin;
+    },
+    getNeedLogin: (state) => {
+        return state.needLogin;
     },
     getId: (state) => {
         return state.id;
@@ -39,6 +43,9 @@ const mutations = {
     setHasLogin: (state, value) => {
         state.hasLogin = value;
     },
+    setNeedLogin: (state, value) => {
+        state.needLogin = value;
+    },
     setId: (state, value) => {
         state.id = value;
     },
@@ -63,6 +70,9 @@ const mutations = {
 const actions = {
     setHasLoginState({commit}, value) {
         commit("setHasLogin", value);
+    },
+    setNeedLoginState({commit}, value) {
+        commit("setNeedLogin", value);
     },
     clearUser({commit}) {
         commit("setHasLogin", false);
