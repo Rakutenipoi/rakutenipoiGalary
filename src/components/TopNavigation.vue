@@ -3,21 +3,22 @@ import { ref, getCurrentInstance, computed } from 'vue'
 import { useStore } from 'vuex'
 
 const activeIndex = ref('/')
-const hasLogin = ref(false)
-const avatar = ref(false)
-const currentInstance = getCurrentInstance()
-const { $resourceApi, $authorizeApi } = currentInstance.appContext.config.globalProperties
-const store = useStore()
 
 const handleOpen = (key, keyPath) => {
   console.log(key, keyPath)
 }
 
+const isCollapse = ref(true)
+
 </script>
 
 <template>
   <div id="top-nav">
-    <el-menu :default-active="activeIndex" mode="vertical" id="top-nav-menu" @open="handleOpen">
+    <!-- <el-radio-group v-model="isCollapse" id="top-nav-collapse">
+      <el-radio-button :label="false">expand</el-radio-button>
+      <el-radio-button :label="true">collapse</el-radio-button>
+    </el-radio-group> -->
+    <el-menu :default-active="activeIndex" mode="vertical" id="top-nav-menu" :collapse="isCollapse">
       <h1 style="text-align: center;">桐 牲 晦</h1>
 
       <router-link to="/" id="top-nav-front-link">
@@ -59,10 +60,22 @@ const handleOpen = (key, keyPath) => {
   z-index: 5;
 }
 
+/* #top-nav-collapse {
+  position: relative;
+  left: 125px;
+} */
+
 #top-nav-menu {
   height: 100%;
+  width: inherit;
   overflow: hidden;
+  position: fixed;
 }
+/* 
+#top-nav-menu:not() {
+  width: 0;
+  height: 100%;
+} */
 
 #top-nav-front-link {
   text-decoration: none;

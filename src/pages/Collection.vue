@@ -14,7 +14,7 @@
 <style scoped>
 #account-container {
   position: relative;
-  left: 125px;
+  width: 100%;
 }
 
 #account-header {
@@ -22,6 +22,8 @@
 }
 
 #account-main {
+  position: relative;
+  left: 125px;
   display: flex;
   flex-flow: row nowrap;
 }

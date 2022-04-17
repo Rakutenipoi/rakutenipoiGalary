@@ -53,6 +53,10 @@ const router = createRouter({
     routes: routes,
 })
 
-
+router.afterEach((to, from) => {
+    if(to.meta.title) {
+        document.title = to.meta.title
+    }
+})
 
 export default router
