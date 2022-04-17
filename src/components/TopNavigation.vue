@@ -1,12 +1,7 @@
 <script setup>
-import { ref, getCurrentInstance, computed } from 'vue'
-import { useStore } from 'vuex'
+import { ref } from 'vue'
 
 const activeIndex = ref('/')
-
-const handleOpen = (key, keyPath) => {
-  console.log(key, keyPath)
-}
 
 const isCollapse = ref(true)
 

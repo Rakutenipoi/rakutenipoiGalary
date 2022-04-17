@@ -1,113 +1,166 @@
 <script lang="ts">
-import { fa } from 'element-plus/lib/locale'
-import { reactive, computed, getCurrentInstance, defineComponent, ref, watch } from 'vue'
-import { useStore } from 'vuex'
+  import { reactive, computed, getCurrentInstance, ref, watch } from 'vue'
+  import { useStore } from 'vuex'
+  import { ElMessage } from 'element-plus'
+  import UserFrontPage from '../user/UserFrontPage.vue'
 
-export default defineComponent({
-  setup() {
-    const currentInstance = getCurrentInstance()
-    const { $resourceApi, $authorizeApi } = currentInstance.appContext.config.globalProperties
+  export default {
+    components: {
+      UserFrontPage
+    },
+    setup(props) {
+      const currentInstance = getCurrentInstance()
+      const { $resourceApi, $authorizeApi } = currentInstance.appContext.config.globalProperties
 
-    const store = useStore()
+      const store = useStore()
 
-    const tokenHeader = computed(() => {
-      return {
-        Authorization: 'Bearer' + localStorage.getItem('token')
-      }
-    })
-
-    const hasLogin = computed(() => store.state.user.hasLogin)
-    watch(hasLogin, (newVal, oldVal) => {
-      if (newVal == false)
-        store.commit('user/setNeedLogin', true)
-    }, {immediate: true, deep: true})
-    const toRegister = ref(false)
-
-    function login() {
-      $authorizeApi.post('user/login', null, {
-        params: {
-          username: form.username,
-          password: form.password
+      const tokenHeader = computed(() => {
+        return {
+          Authorization: 'Bearer' + localStorage.getItem('token')
         }
       })
-      .then(res => {
-        store.commit('user/setHasLogin', true)
-        console.log(res)
-      }).catch(err => {
-        console.log(err)
+
+      const hasLogin = computed(() => store.state.user.hasLogin)
+      watch(hasLogin, (newVal, oldVal) => {
+        if (newVal == false)
+          store.commit('user/setNeedLogin', true)
+      }, {immediate: true, deep: true})
+
+      const toRegister = ref(false)
+      watch(toRegister, (newVal, oldVal) => {
+        form.email = '',
+        form.password = '',
+        form.username = '',
+        form.verifypassword = ''
       })
-    }
 
-    function logout() {
-      localStorage.removeItem('token')
-      store.dispatch('user/clearUser')
-      store.commit('user/setNeedLogin', true)
-    }
+      // 登录表单
+      const form = reactive({
+        username: '',
+        password: '',
+        verifypassword: '',
+        email: '',
+      })
 
-    function register() {
-      console.log("toRegister")
-      if (form.password == form.verifypassword) {
-        $authorizeApi.post('user/register', null, {
+      // 用户信息
+      const userInfo = reactive({
+        username: '',
+        email: '',
+        id: '',
+        role: '',
+        collections: '',
+        favorites: '',
+      })
+
+      //登录
+      const login = () => {
+        $authorizeApi.post('user/login', null, {
           params: {
             username: form.username,
-            password: form.password,
-            email: form.email
+            password: form.password
           }
-        }).then(res => {
+        })
+        .then(res => {
+          if (res.data['code'] == 200) {
+            store.commit('user/setHasLogin', true)
+            localStorage.setItem('token', res.data['access_token'])
+            ElMessage.success('欢迎回来，' + form.username)
+            getUserInfo()
+            console.log("login success, token: " + localStorage.getItem('token'))
+          } else {
+            console.log(res.data['error'] + ", " + res.data['error_describe'])
+          }
           console.log(res)
         }).catch(err => {
           console.log(err)
         })
-      } else {
-        verifyPasswordFail = ref(true)
       }
-      
-    }
 
-    function getInfo() {
-      $authorizeApi.post('/user/info').then(res=>console.log(res))
-    }
-    
-    let verifyPasswordFail = ref(false)
+      const logout = () => {
+        $authorizeApi.get('user/logout')
+        .then(res => {
+          console.log("logout: " + res)
+          if (res.data['code'] == 200) {
+            localStorage.removeItem('token')
+            store.dispatch('user/clearUser')
+            ElMessage({
+              message: '登出成功',
+              type: 'success',
+            })
+          } else {
+            ElMessage.error('登出失败')
+          }
+        })
+      }
 
-    const form = reactive({
-      username: '',
-      password: '',
-      verifypassword: '',
-      email: '',
-    })
+      const register = () => {
+        if (form.password == form.verifypassword) {
+          console.log("toRegister")
+          $authorizeApi.post('user/register', null, {
+            params: {
+              username: form.username,
+              password: form.password,
+              email: form.email
+            }
+          }).then(res => {
+            if (res.data['code'] == 200) {
+              ElMessage.success('注册成功')
+            }
+            console.log(res)
+          }).catch(err => {
+            console.log(err)
+          })
+        } else {
+          ElMessage({
+            message: '请保证两次输入的密码相同',
+            type: 'error',
+            center: true,
+            duration: 1000
+          })
+        }
+      }
 
-    return {
-      tokenHeader,
-      login,
-      logout,
-      register,
-      getInfo,
-      hasLogin,
-      toRegister,
-      store,
-      form,
-      verifyPasswordFail
+      // 获取用户信息
+      const getUserInfo = () => {
+        $authorizeApi.get('user/info')
+        .then(res => {
+          userInfo.username = res.data.user['username']
+          userInfo.email = res.data.user['email']
+          userInfo.collections = res.data.user['collections']
+          userInfo.favorites = res.data.user['favorites']
+          userInfo.role = res.data.user['role']
+          userInfo.id = res.data.user['id']
+        })
+      }
+
+      return {
+        hasLogin,
+        toRegister,
+        form,
+        userInfo,
+        getUserInfo,
+        login,
+        logout,
+        register,
+      }
     }
   }
-})
-
 </script>
 
 <template>
   <el-container id="user-container">
-    <el-header height="30%" id="user-header">Header</el-header>
+    <el-header height="30%" id="user-header">测试用header</el-header>
     <el-main id="user-main">
       <div id="user-main-profile" v-if="hasLogin">
         <!-- 用户界面 -->
-
+        <UserFrontPage :info="userInfo" :logout="logout"></UserFrontPage>
       </div>
 
       
       <!-- 登录 -->
       <div id="user-main-login" v-else>
         <el-row id="user-main-login-back">
-          <el-button id="user-main-login-back-button" v-if="toRegister" @click="toRegister=false, verifyPasswordFail=false">返回</el-button>
+          <el-button id="user-main-login-back-button" v-if="toRegister" @click="toRegister=false">返回</el-button>
         </el-row>
         
         <el-form
@@ -134,7 +187,6 @@ export default defineComponent({
         <el-row id="user-main-button">
           <div id="user-main-register-button" v-if="toRegister">
             <el-button @click="register">确认</el-button>
-            <p style="color: red;" v-if="verifyPasswordFail">请保证两次输入的密码相同</p>
           </div>
           <div id="user-main-login-button" v-else>
             <el-button @click="login">登录</el-button>
@@ -201,6 +253,10 @@ export default defineComponent({
   padding: 20px;
   padding-left: 30px;
   padding-bottom: 10px;
+}
+
+#user-main-profile {
+  width: inherit;
 }
 
 </style>
