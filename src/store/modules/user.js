@@ -7,7 +7,8 @@ const state = () => ({
     password: String,
     email: String,
     nickname: String,
-    access_token: String
+    access_token: String,
+    role: String
 })
 
 // getters
@@ -35,6 +36,9 @@ const getters = {
     },
     getAccessToken: (state) => {
         return state.access_token;
+    },
+    getRole: (state) => {
+        return state.role;
     }
 }
 
@@ -63,6 +67,9 @@ const mutations = {
     },
     setAccessToken: (state, value) => {
         state.access_token = value;
+    },
+    setRole: (state, value) => {
+        state.role = value;
     }
 }
 
@@ -82,6 +89,7 @@ const actions = {
         commit("setEmail", null);
         commit("setNickName", null);
         commit("setAccessToken", null);
+        commit("setRole", null);
     }
 }
 

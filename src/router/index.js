@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router"
 import FrontPage from "../pages/FrontPage.vue"
 import User from "../pages/user/Login.vue"
 import Favorite from "../pages/Favorite.vue"
-import Collection from "../pages/Collection.vue"
+import Collection from "../pages/collection/Collection.vue"
 import Upload from "../pages/Upload.vue"
 
 const routes = [

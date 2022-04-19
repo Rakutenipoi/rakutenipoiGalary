@@ -1,4 +1,11 @@
 <script setup>
+import { useStore } from 'vuex';
+import { ElMessage } from 'element-plus';
+
+const store = useStore()
+
+const hasLogin = computed(() => store.state.user.hasLogin)
+
 const urls = [
   'img/1.jpg',
   'img/3.jpg',
@@ -9,25 +16,27 @@ const urls = [
 </script>
 
 <template>
-  <el-main id="front-photo" >
+  <div id="top-photos-container">
     <el-image v-for="url in urls" :src="url" :key="url" id="top-photo"></el-image>
-  </el-main>
+  </div>
 </template>
 
 <style scoped>
-
-#front-photo {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: flex-start;
+#top-photos-container {
   position: relative;
   left: 125px;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start; 
+  padding: 10px;
 }
 
 #top-photo {
-  width: 150px;
-  height: 150px;
-  padding: 3px;
+  /* box-sizing: border-box; */
+  padding: 10px;
+  width: 200px;
+  height: 200px;
+  
 }
 
 </style>

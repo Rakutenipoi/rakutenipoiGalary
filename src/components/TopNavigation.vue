@@ -14,7 +14,7 @@ const isCollapse = ref(true)
       <el-radio-button :label="true">collapse</el-radio-button>
     </el-radio-group> -->
     <el-menu :default-active="activeIndex" mode="vertical" id="top-nav-menu" :collapse="isCollapse">
-      <h1 style="text-align: center;">桐 牲 晦</h1>
+      <h1 style="text-align: center;">TouSeiKai</h1>
 
       <router-link to="/" id="top-nav-front-link">
         <el-menu-item index="front" id="top-nav-front">首页</el-menu-item>
@@ -96,6 +96,7 @@ const isCollapse = ref(true)
   text-decoration: none;
   color:black;
 }
+
 
 </style>
 

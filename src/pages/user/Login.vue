@@ -42,16 +42,6 @@
         email: '',
       })
 
-      // 用户信息
-      const userInfo = reactive({
-        username: '',
-        email: '',
-        id: '',
-        role: '',
-        collections: '',
-        favorites: '',
-      })
-
       //登录
       const login = () => {
         $authorizeApi.post('user/login', null, {
@@ -63,12 +53,13 @@
         .then(res => {
           if (res.data['code'] == 200) {
             store.commit('user/setHasLogin', true)
+            store.commit('user/setAccessToken', res.data['access_token'])
             localStorage.setItem('token', res.data['access_token'])
             ElMessage.success('欢迎回来，' + form.username)
             getUserInfo()
-            console.log("login success, token: " + localStorage.getItem('token'))
           } else {
             console.log(res.data['error'] + ", " + res.data['error_describe'])
+            ElMessage.error('登录失败')
           }
           console.log(res)
         }).catch(err => {
@@ -105,6 +96,7 @@
           }).then(res => {
             if (res.data['code'] == 200) {
               ElMessage.success('注册成功')
+              toRegister.value = false
             }
             console.log(res)
           }).catch(err => {
@@ -124,12 +116,16 @@
       const getUserInfo = () => {
         $authorizeApi.get('user/info')
         .then(res => {
-          userInfo.username = res.data.user['username']
-          userInfo.email = res.data.user['email']
-          userInfo.collections = res.data.user['collections']
-          userInfo.favorites = res.data.user['favorites']
-          userInfo.role = res.data.user['role']
-          userInfo.id = res.data.user['id']
+          if (res.data['code'] == 200) {
+            console.log(res)
+            store.commit('user/setUserName', res.data.user['username'])
+            store.commit('user/setEmail', res.data.user['email'])
+            store.commit('user/setRole', res.data.user['role'])
+            store.commit('user/setId', res.data.user['id'])
+            store.commit('user/setNickName', res.data.user['nickname'])
+          } else {
+            ElMessage.error('获取用户信息失败')
+          }
         })
       }
 
@@ -137,7 +133,6 @@
         hasLogin,
         toRegister,
         form,
-        userInfo,
         getUserInfo,
         login,
         logout,
@@ -153,7 +148,7 @@
     <el-main id="user-main">
       <div id="user-main-profile" v-if="hasLogin">
         <!-- 用户界面 -->
-        <UserFrontPage :info="userInfo" :logout="logout"></UserFrontPage>
+        <UserFrontPage :logout="logout"></UserFrontPage>
       </div>
 
       
