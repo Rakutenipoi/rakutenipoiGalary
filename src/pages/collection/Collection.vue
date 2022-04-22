@@ -3,7 +3,7 @@ import { useStore } from 'vuex'
 import { getCurrentInstance, ref, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Tag from "../../components/Tag.vue"
-import Login from "../user/Login.vue"
+import emitter from '../../compatible/eventBus'
 
 export default {
   components: {
@@ -98,6 +98,7 @@ export default {
   },
 
   created() {
+    emitter.emit('verifyToken')
   },
 
   mounted() {
@@ -108,7 +109,7 @@ export default {
 </script>
 
 <template>
-  <div id="collection-contrainer">
+  <div id="collection-contrainer" onload="emitter.emit('verifyToken')">
     <Tag v-if="hasLogin" id="collection-tag"></Tag>
     <div v-if="hasLogin" id="collection-button">
       <el-button @click="createCollection">创建图集</el-button>

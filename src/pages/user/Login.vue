@@ -3,10 +3,11 @@
   import { useStore } from 'vuex'
   import { ElMessage } from 'element-plus'
   import UserFrontPage from '../user/UserFrontPage.vue'
+  import emitter from '../../compatible/eventBus.js'
 
   export default {
     components: {
-      UserFrontPage
+      UserFrontPage,
     },
     setup(props) {
       const currentInstance = getCurrentInstance()
@@ -43,7 +44,7 @@
       })
 
       //登录
-      const login = () => {
+      const login = (form) => {
         $authorizeApi.post('user/login', null, {
           params: {
             username: form.username,
@@ -63,6 +64,8 @@
         }).catch(err => {
           console.log(err)
         })
+
+        
       }
 
       const logout = () => {
@@ -82,7 +85,7 @@
         })
       }
 
-      const register = () => {
+      const register = (form) => {
         if (form.password == form.verifypassword) {
           $authorizeApi.post('user/register', null, {
             params: {
@@ -129,18 +132,19 @@
 
       // 验证登录状态有效性
       const verifyToken = () => {
+        console.log('verify token')
         $authorizeApi.post('user/verify/active', null, {
           params: {
             token: store.getters['user/getAccessToken'],
           }
         }).then(res => {
-          if (res.data['code'] != 200) {
+          if (res.data == null || res.data['code'] != 200) {
             localStorage.removeItem('token')
             store.dispatch('user/clearUser')
             ElMessage({
               message: '登录状态过期，请重新登录',
               type: 'error',
-              onClose: autoFreshPage,
+              // onClose: autoFreshPage,
             })
           }
         })
@@ -150,6 +154,13 @@
       const autoFreshPage = () => {
         location.reload()
       }
+
+      // 注册事件
+      emitter.on('login', (form) => { return login(form) })
+      emitter.on('verifyToken', verifyToken)
+      emitter.on('logout', logout)
+      emitter.on('register', (form) => { return register(form) })
+      emitter.on('getUserInfo', getUserInfo)
 
       return {
         hasLogin,
@@ -161,6 +172,10 @@
         register,
         verifyToken,
       }
+    },
+
+    mounted() {
+      
     },
   }
 </script>
@@ -205,10 +220,10 @@
 
         <el-row id="user-main-button">
           <div id="user-main-register-button" v-if="toRegister">
-            <el-button @click="register">确认</el-button>
+            <el-button @click="register(form)">确认</el-button>
           </div>
           <div id="user-main-login-button" v-else>
-            <el-button @click="login">登录</el-button>
+            <el-button @click="login(form)">登录</el-button>
             <el-button @click="toRegister=true">注册</el-button>
           </div>
         </el-row>

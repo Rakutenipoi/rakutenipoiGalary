@@ -90,7 +90,7 @@ const actions = {
         commit("setNickName", null);
         commit("setAccessToken", null);
         commit("setRole", null);
-    }
+    },
 }
 
 export default {

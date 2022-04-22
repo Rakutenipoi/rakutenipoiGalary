@@ -2,6 +2,7 @@
 	import { reactive, computed, getCurrentInstance, ref, watch, toRef } from 'vue'
 	import { useStore } from 'vuex'
 	import { ElMessage, ElMessageBox } from 'element-plus'
+	import emitter from '../../compatible/eventBus';
 
 	const currentInstance = getCurrentInstance()
 	const { $resourceApi, $authorizeApi } = currentInstance.appContext.config.globalProperties
