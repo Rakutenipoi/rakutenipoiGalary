@@ -58,10 +58,8 @@
             ElMessage.success('欢迎回来，' + form.username)
             getUserInfo()
           } else {
-            console.log(res.data['error'] + ", " + res.data['error_describe'])
             ElMessage.error('登录失败')
           }
-          console.log(res)
         }).catch(err => {
           console.log(err)
         })
@@ -86,7 +84,6 @@
 
       const register = () => {
         if (form.password == form.verifypassword) {
-          console.log("toRegister")
           $authorizeApi.post('user/register', null, {
             params: {
               username: form.username,
@@ -97,9 +94,11 @@
             if (res.data['code'] == 200) {
               ElMessage.success('注册成功')
               toRegister.value = false
+            } else {
+              ElMessage.error('注册失败，请稍后重试')
             }
-            console.log(res)
           }).catch(err => {
+            ElMessage.error('注册失败，请稍后重试')
             console.log(err)
           })
         } else {
@@ -117,7 +116,6 @@
         $authorizeApi.get('user/info')
         .then(res => {
           if (res.data['code'] == 200) {
-            console.log(res)
             store.commit('user/setUserName', res.data.user['username'])
             store.commit('user/setEmail', res.data.user['email'])
             store.commit('user/setRole', res.data.user['role'])
@@ -129,6 +127,30 @@
         })
       }
 
+      // 验证登录状态有效性
+      const verifyToken = () => {
+        $authorizeApi.post('user/verify/active', null, {
+          params: {
+            token: store.getters['user/getAccessToken'],
+          }
+        }).then(res => {
+          if (res.data['code'] != 200) {
+            localStorage.removeItem('token')
+            store.dispatch('user/clearUser')
+            ElMessage({
+              message: '登录状态过期，请重新登录',
+              type: 'error',
+              onClose: autoFreshPage,
+            })
+          }
+        })
+      }
+
+      // 自动刷新网页
+      const autoFreshPage = () => {
+        location.reload()
+      }
+
       return {
         hasLogin,
         toRegister,
@@ -137,18 +159,20 @@
         login,
         logout,
         register,
+        verifyToken,
       }
-    }
+    },
   }
 </script>
 
+
 <template>
-  <el-container id="user-container">
+  <el-container id="user-container" >
     <el-header height="30%" id="user-header">测试用header</el-header>
     <el-main id="user-main">
       <div id="user-main-profile" v-if="hasLogin">
         <!-- 用户界面 -->
-        <UserFrontPage :logout="logout"></UserFrontPage>
+        <UserFrontPage :logout="logout" :getUserInfo="getUserInfo" :verifyToken="verifyToken"></UserFrontPage>
       </div>
 
       
